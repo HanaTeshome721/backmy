@@ -15,12 +15,15 @@ router.route('/verify-email/:verificationToken').get(verifyEmail)
 
 router.route('/refresh-token').post(refreshAcessToken)
 router.route('/forgot-paswword').post(userForgotPasswordValidator(),validate,forgotPasswordRequest)
+router.route('/forgot-password').post(userForgotPasswordValidator(),validate,forgotPasswordRequest)
 router.route("/reset-password/:resetToken").post(userResetForgotPasswordValidator(),validate,resetForgotPassword)
 
 //secure routes
 router.route('/logout').post(verifyJWT,logoutUser)
 router.route('/current-user').post(verifyJWT,getCurrentUser)
+router.route('/me').get(verifyJWT,getCurrentUser)
 router.route('/current-password').post(verifyJWT,userChangeCurrentPasswordValidator(),validate,changeCurrentPassword)
+router.route('/change-password').post(verifyJWT,userChangeCurrentPasswordValidator(),validate,changeCurrentPassword)
 router.route("/resend-email-verification").post(verifyJWT , resendEmailVerification)
 
 export default router;

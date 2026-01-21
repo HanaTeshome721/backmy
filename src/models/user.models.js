@@ -19,7 +19,7 @@ const userSchema = new Schema(
             type:String,
             required:true,
             unique:true,
-            lowercase:true,
+            lowercase: true,
             trim:true,
             index:true
         },
@@ -42,6 +42,14 @@ const userSchema = new Schema(
             type:Boolean,
             default:false
         },
+        isVerified: {
+            type: Boolean,
+            default: false
+        },
+        isSuspended: {
+            type: Boolean,
+            default: false
+        },
         refreshToken:{
             type:String
         },
@@ -56,7 +64,13 @@ const userSchema = new Schema(
         },
         emailVerificationExpiry:{
             type:Date
-        }
+        },
+        role: {
+            type: String,
+            enum: ["admin", "donor", "recipient"],
+            default: "donor"
+          }
+          
 
     },{
         timestamps:true

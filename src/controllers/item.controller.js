@@ -51,6 +51,23 @@ const getApprovedItems = asyncHandler(async (req, res) => {
     .json(new ApiResponse(200, items, "Approved items fetched"));
 });
 
+const getAllItems = asyncHandler(async (req, res) => {
+  const { status, category, owner } = req.query;
+  const filter = {};
+
+  if (status) filter.status = status;
+  if (category) filter.category = category;
+  if (owner) filter.owner = owner;
+
+  const items = await Item.find(filter)
+    .populate("owner", "username email role")
+    .sort({ createdAt: -1 });
+
+  return res
+    .status(200)
+    .json(new ApiResponse(200, items, "Items fetched"));
+});
+
 const getItemById = asyncHandler(async (req, res) => {
   const { itemId } = req.params;
   const item = await Item.findById(itemId).populate(
@@ -170,6 +187,7 @@ const rejectItem = asyncHandler(async (req, res) => {
 export {
   createItem,
   getApprovedItems,
+  getAllItems,
   getItemById,
   updateItem,
   deleteItem,

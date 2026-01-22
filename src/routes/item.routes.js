@@ -2,6 +2,7 @@ import { Router } from "express";
 import {
   createItem,
   getApprovedItems,
+  getAllItems,
   getItemById,
   updateItem,
   deleteItem,
@@ -15,6 +16,7 @@ import { authorizeRoles } from "../middlewares/role.middleware.js";
 const router = Router();
 
 router.get("/", getApprovedItems);
+router.get("/admin", verifyJWT, authorizeRoles("admin"), getAllItems);
 router.get("/:itemId", getItemById);
 
 router.post(

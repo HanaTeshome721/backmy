@@ -23,7 +23,7 @@ const generateAccessAndRefreshTokens=async(userId)=>{
 
 
 const registerUser=asyncHandler(async(req,res)=>{
-    const {email,username,password,role}=req.body
+    const {email,username,password,fullName,phoneNumber,address,role}=req.body
 
     const existedUser= await User.findOne({
         $or:[{username}, {email}]
@@ -33,10 +33,21 @@ const registerUser=asyncHandler(async(req,res)=>{
         throw new ApiError(409,"user  with name or email already exist", [])
     }
 
+    const avatarPayload = req.file
+      ? {
+          url: `${req.protocol}://${req.get("host")}/uploads/${req.file.filename}`,
+          localPath: req.file.path
+        }
+      : undefined;
+
     const user = await User.create({
         email,
         password,
         username,
+        fullName,
+        phoneNumber,
+        address,
+        ...(avatarPayload ? { avater: avatarPayload } : {}),
         isEmailVerified:false
     })
 
@@ -173,17 +184,8 @@ const verifyEmail =asyncHandler(async(req,res)=>{
     user.isEmailVerified=true
     await user.save({validateBeforeSave:false})
 
-    return res
-            .status(200)
-            .json(
-                new ApiResponse(
-                    200,
-                    {
-                        isEmailVerified:true,
-                    },
-                    "email is verified"
-                )
-            )
+    const redirectUrl = `${process.env.FRONTEND_URL || "http://localhost:3000"}/login`
+    return res.redirect(redirectUrl)
 })
 
 const resendEmailVerification =asyncHandler(async(req,res)=>{
@@ -365,6 +367,24 @@ const changeCurrentPassword =asyncHandler(async(req,res)=>{
         )
 })
 
+const updateCurrentUser = asyncHandler(async (req, res) => {
+    const { fullName, phoneNumber, address, email } = req.body;
+
+    const update = {};
+    if (fullName !== undefined) update.fullName = fullName;
+    if (phoneNumber !== undefined) update.phoneNumber = phoneNumber;
+    if (address !== undefined) update.address = address;
+    if (email !== undefined) update.email = email;
+
+    const user = await User.findByIdAndUpdate(req.user._id, update, {
+        new: true
+    }).select("-password -refreshToken -emailVerificationToken -emailVerificationExpiry");
+
+    return res
+        .status(200)
+        .json(new ApiResponse(200, user, "Profile updated"));
+});
+
 export {
     registerUser,
     login,
@@ -375,5 +395,6 @@ export {
     refreshAcessToken,
     forgotPasswordRequest,
     changeCurrentPassword,
-    resetForgotPassword
+    resetForgotPassword,
+    updateCurrentUser
 };

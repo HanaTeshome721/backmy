@@ -3,6 +3,7 @@ const AUTH_STORAGE_KEY = "share_exchange_auth";
 export const saveAuth = (payload) => {
   if (typeof window === "undefined") return;
   localStorage.setItem(AUTH_STORAGE_KEY, JSON.stringify(payload));
+  window.dispatchEvent(new Event("auth:changed"));
 };
 
 export const getAuth = () => {
@@ -19,6 +20,7 @@ export const getAuth = () => {
 export const clearAuth = () => {
   if (typeof window === "undefined") return;
   localStorage.removeItem(AUTH_STORAGE_KEY);
+  window.dispatchEvent(new Event("auth:changed"));
 };
 
 export const getAccessToken = () => {

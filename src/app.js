@@ -30,6 +30,8 @@ import notificationRouter from "./routes/notification.routes.js";
 import userRouter from "./routes/user.routes.js";
 import categoryRouter from "./routes/category.routes.js";
 import reportRouter from "./routes/report.routes.js";
+import needRouter from "./routes/need.routes.js";
+import contactRouter from "./routes/contact.routes.js";
 
 
 
@@ -42,6 +44,8 @@ app.use("/api/v1/notifications", notificationRouter);
 app.use("/api/v1/admin/users", userRouter);
 app.use("/api/v1/categories", categoryRouter);
 app.use("/api/v1/reports", reportRouter);
+app.use("/api/v1/needs", needRouter);
+app.use("/api/v1/contact", contactRouter);
 
 
 app.get('/',(req,res)=>{

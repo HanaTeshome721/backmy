@@ -7,8 +7,9 @@ const API_BASE =
 
 export const apiFetch = async (path, options = {}) => {
   const token = getAccessToken();
+  const isFormData = typeof FormData !== "undefined" && options.body instanceof FormData;
   const headers = {
-    "Content-Type": "application/json",
+    ...(isFormData ? {} : { "Content-Type": "application/json" }),
     ...(options.headers || {})
   };
 

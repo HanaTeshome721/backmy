@@ -12,13 +12,17 @@
   "main": "index.js",
   "scripts": {
     "dev": "nodemon src/index.js",
-    "start": "node src/index.js"
+    "start": "node src/index.js",
+    "test": "node --test"
   },
   "devDependencies": {
     "nodemon": "^3.1.11",
-    "prettier": "3.7.4"
+    "prettier": "3.7.4",
+    "mongodb-memory-server": "^10.2.0",
+    "supertest": "^7.1.1"
   },
   "dependencies": {
+    "@heroui/react": "^2.8.7",
     "bcrypt": "^6.0.0",
     "cookie-parser": "^1.4.7",
     "cors": "^2.8.5",
@@ -28,6 +32,7 @@
     "jsonwebtoken": "^9.0.3",
     "mailgen": "^2.0.32",
     "mongoose": "^9.1.2",
+    "multer": "^1.4.5-lts.1",
     "nodemailer": "^7.0.12"
   }
 }

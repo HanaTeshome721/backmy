@@ -34,6 +34,14 @@ const userSchema = new Schema(
             type:String,
             trim:true
         },
+        phoneNumber: {
+            type: String,
+            trim: true
+        },
+        address: {
+            type: String,
+            trim: true
+        },
         password:{
             type:String,
             required:[true,"password is required"]
@@ -49,6 +57,9 @@ const userSchema = new Schema(
         isSuspended: {
             type: Boolean,
             default: false
+        },
+        suspendedUntil: {
+            type: Date
         },
         refreshToken:{
             type:String

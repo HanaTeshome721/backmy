@@ -34,6 +34,12 @@ const complaintSchema = new Schema(
       type: String,
       trim: true
     },
+    userReply: {
+      type: String,
+      trim: true
+    },
+    userReplyAt: Date,
+    warningReadAt: Date,
 
     resolvedBy: {
       type: Schema.Types.ObjectId,

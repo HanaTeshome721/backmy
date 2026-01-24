@@ -1,51 +1,40 @@
 import mongoose, { Schema } from "mongoose";
 
-const requestSchema = new Schema(
+const needOfferSchema = new Schema(
   {
-    item: {
+    need: {
       type: Schema.Types.ObjectId,
-      ref: "Item",
+      ref: "Need",
       required: true
     },
-
+    donor: {
+      type: Schema.Types.ObjectId,
+      ref: "User",
+      required: true
+    },
     requester: {
       type: Schema.Types.ObjectId,
       ref: "User",
       required: true
     },
-
-    owner: {
-      type: Schema.Types.ObjectId,
-      ref: "User",
-      required: true
-    },
-
     status: {
       type: String,
       enum: ["pending", "approved", "rejected"],
       default: "pending"
     },
-
     message: {
       type: String,
       trim: true
     },
-    evidenceImages: [
-      {
-        url: String,
-        localPath: String
-      }
-    ],
-
     respondedAt: Date,
-    ownerContactSharedAt: Date
+    requesterContactSharedAt: Date
   },
   {
     timestamps: true
   }
 );
 
-const Request = mongoose.model("Request", requestSchema);
+const NeedOffer = mongoose.model("NeedOffer", needOfferSchema);
 
-export { Request };
-export default Request;
+export { NeedOffer };
+export default NeedOffer;

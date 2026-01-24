@@ -4,21 +4,25 @@ import { ApiResponse } from "../utils/app-response.js";
 import { asyncHandler } from "../utils/async-handler.js";
 
 const createItem = asyncHandler(async (req, res) => {
-  const { title, description, category, condition, images } = req.body;
+  const { title, description, category, condition } = req.body;
 
   if (!title || !description || !category || !condition) {
     throw new ApiError(400, "Missing required item fields");
   }
-  if (!req.user.isVerified) {
-    throw new ApiError(403, "Account must be verified to create listings");
-  }
+
+  const uploadedImages = Array.isArray(req.files)
+    ? req.files.map((file) => ({
+        url: `${req.protocol}://${req.get("host")}/uploads/${file.filename}`,
+        localPath: file.path
+      }))
+    : [];
 
   const item = await Item.create({
     title,
     description,
     category,
     condition,
-    images: Array.isArray(images) ? images : [],
+    images: uploadedImages,
     owner: req.user._id
   });
 
@@ -66,6 +70,15 @@ const getAllItems = asyncHandler(async (req, res) => {
   return res
     .status(200)
     .json(new ApiResponse(200, items, "Items fetched"));
+});
+
+const getMyItems = asyncHandler(async (req, res) => {
+  const items = await Item.find({ owner: req.user._id })
+    .sort({ createdAt: -1 });
+
+  return res
+    .status(200)
+    .json(new ApiResponse(200, items, "My items fetched"));
 });
 
 const getItemById = asyncHandler(async (req, res) => {
@@ -188,6 +201,7 @@ export {
   createItem,
   getApprovedItems,
   getAllItems,
+  getMyItems,
   getItemById,
   updateItem,
   deleteItem,

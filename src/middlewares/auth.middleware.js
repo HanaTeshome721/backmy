@@ -18,7 +18,14 @@ export const verifyJWT= asyncHandler(async( req,res,next)=>{
         throw new ApiError(401,"Invalid access token")
     }
      if (user.isSuspended) {
-        throw new ApiError(403, "User account is suspended");
+        if (user.suspendedUntil && user.suspendedUntil < new Date()) {
+            await User.findByIdAndUpdate(user._id, {
+                isSuspended: false,
+                suspendedUntil: undefined
+            });
+        } else {
+            throw new ApiError(403, "User account is suspended");
+        }
      }
      req.user=user
      next()

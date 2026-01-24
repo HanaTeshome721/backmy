@@ -3,6 +3,7 @@ import {
   createItem,
   getApprovedItems,
   getAllItems,
+  getMyItems,
   getItemById,
   updateItem,
   deleteItem,
@@ -12,17 +13,20 @@ import {
 
 import { verifyJWT } from "../middlewares/auth.middleware.js";
 import { authorizeRoles } from "../middlewares/role.middleware.js";
+import { upload } from "../middlewares/upload.middleware.js";
 
 const router = Router();
 
 router.get("/", getApprovedItems);
 router.get("/admin", verifyJWT, authorizeRoles("admin"), getAllItems);
-router.get("/:itemId", getItemById);
+router.get("/mine", verifyJWT, authorizeRoles("donor", "recipient"), getMyItems);
+router.get("/:itemId", verifyJWT, getItemById);
 
 router.post(
   "/",
   verifyJWT,
   authorizeRoles("donor"),
+  upload.array("images", 6),
   createItem
 );
 

@@ -76,10 +76,38 @@ const forgetPasswordMailgenContent=(username,passwordResetUrl)=>{
     }
 }
 
+const contactMailgenContent = ({ name, email, message }) => {
+    return {
+        body: {
+            name: "Admin",
+            intro: `You received a new contact form message.`,
+            table: {
+                data: [
+                    { key: "Name", value: name },
+                    { key: "Email", value: email }
+                ]
+            },
+            outro: message
+        }
+    }
+}
+
+const contactReplyMailgenContent = ({ name, reply }) => {
+    return {
+        body: {
+            name,
+            intro: "Thanks for reaching out. Here is our response:",
+            outro: reply
+        }
+    }
+}
 
 
 
 export{
     emailVerificationMailgenContent,
-    forgetPasswordMailgenContent,sendEmail
+    forgetPasswordMailgenContent,
+    contactMailgenContent,
+    contactReplyMailgenContent,
+    sendEmail
 }

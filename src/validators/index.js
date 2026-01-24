@@ -22,8 +22,17 @@ const userRegisterValidator=()=>{
            .notEmpty()
            .withMessage("password is required"),
         body("fullName")
-            .optional()
             .trim()
+            .notEmpty()
+            .withMessage("full name is required"),
+        body("phoneNumber")
+            .trim()
+            .notEmpty()
+            .withMessage("phone number is required"),
+        body("address")
+            .trim()
+            .notEmpty()
+            .withMessage("address is required")
             
     ]
 }

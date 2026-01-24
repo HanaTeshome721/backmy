@@ -2,10 +2,13 @@
 
 import { useEffect, useState } from "react";
 import { apiFetch } from "@/lib/api";
+import ImagePreviewModal from "@/components/ImagePreviewModal";
+import ImageCarousel from "@/components/ImageCarousel";
 
 export default function AdminItemsPage() {
   const [items, setItems] = useState([]);
   const [message, setMessage] = useState("");
+  const [previewImage, setPreviewImage] = useState("");
 
   const loadItems = async () => {
     try {
@@ -37,13 +40,28 @@ export default function AdminItemsPage() {
       <div className="space-y-3">
         {items.map((item) => (
           <div key={item._id} className="card space-y-2">
+            {item.images?.length ? (
+              <ImageCarousel
+                images={item.images}
+                alt={item.title}
+                onImageClick={setPreviewImage}
+              />
+            ) : null}
             <div className="flex items-center justify-between">
               <h3 className="text-sm font-semibold">{item.title}</h3>
-              <span className="text-xs text-slate-400">{item.status}</span>
+              <span className="status-text" data-status={(item.status || "").toLowerCase()}>
+                {item.status}
+              </span>
             </div>
             <p className="text-sm text-slate-600">{item.description}</p>
             <div className="text-xs text-slate-500">
               Category: {item.category} · Condition: {item.condition}
+            </div>
+            <div className="text-xs text-slate-500">
+              Owner: {item.owner?.username || "Unknown"}
+            </div>
+            <div className="text-xs text-slate-500">
+              Created: {new Date(item.createdAt).toLocaleString()}
             </div>
             <div className="flex gap-2">
               <button className="btn-primary" onClick={() => handleAction(item._id, "approve")}>
@@ -56,6 +74,11 @@ export default function AdminItemsPage() {
           </div>
         ))}
       </div>
+      <ImagePreviewModal
+        src={previewImage}
+        alt="Item image"
+        onClose={() => setPreviewImage("")}
+      />
     </div>
   );
 }

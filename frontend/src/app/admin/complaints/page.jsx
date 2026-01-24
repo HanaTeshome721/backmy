@@ -6,6 +6,7 @@ import { apiFetch } from "@/lib/api";
 export default function AdminComplaintsPage() {
   const [complaints, setComplaints] = useState([]);
   const [message, setMessage] = useState("");
+  const [responses, setResponses] = useState({});
 
   const loadComplaints = async () => {
     try {
@@ -25,8 +26,9 @@ export default function AdminComplaintsPage() {
     try {
       await apiFetch(`/complaints/${id}/resolve`, {
         method: "PUT",
-        body: JSON.stringify({ adminResponse: "Resolved" })
+        body: JSON.stringify({ adminResponse: responses[id] || "Resolved" })
       });
+      setResponses((prev) => ({ ...prev, [id]: "" }));
       await loadComplaints();
     } catch (error) {
       setMessage(error.message);
@@ -48,11 +50,28 @@ export default function AdminComplaintsPage() {
                 {complaint.status}
               </span>
             </div>
+            <p className="text-xs text-slate-500">
+              Against: {complaint.againstUser?.username || "N/A"}
+              {complaint.relatedItem?.title ? ` · Item: ${complaint.relatedItem.title}` : ""}
+            </p>
             <p className="text-sm text-slate-600">{complaint.description}</p>
             {complaint.status !== "resolved" ? (
-              <button className="btn-outline" onClick={() => resolveComplaint(complaint._id)}>
-                Resolve
-              </button>
+              <div className="space-y-2">
+                <textarea
+                  className="input min-h-[90px]"
+                  placeholder="Write a response to the user"
+                  value={responses[complaint._id] || ""}
+                  onChange={(event) =>
+                    setResponses((prev) => ({
+                      ...prev,
+                      [complaint._id]: event.target.value
+                    }))
+                  }
+                />
+                <button className="btn-outline" onClick={() => resolveComplaint(complaint._id)}>
+                  Resolve & Reply
+                </button>
+              </div>
             ) : null}
           </div>
         ))}

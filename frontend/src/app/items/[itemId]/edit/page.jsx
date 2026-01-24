@@ -1,38 +1,41 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { useRouter } from "next/navigation";
+import { useParams, useRouter } from "next/navigation";
 import { apiFetch } from "@/lib/api";
-import { getAccessToken } from "@/lib/auth";
 
-export default function NewItemPage() {
+export default function EditItemPage() {
+  const params = useParams();
   const router = useRouter();
+  const { itemId } = params;
   const [form, setForm] = useState({
     title: "",
     description: "",
     category: "",
     condition: "used"
   });
-  const [images, setImages] = useState([]);
-  const [categories, setCategories] = useState([]);
-  const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState("");
-  const [showSuccess, setShowSuccess] = useState(false);
+  const [loading, setLoading] = useState(false);
 
   useEffect(() => {
-    if (!getAccessToken()) {
-      router.replace("/login");
-    }
-    const loadCategories = async () => {
+    const loadItem = async () => {
       try {
-        const data = await apiFetch("/categories");
-        setCategories(data?.data || []);
+        const data = await apiFetch(`/items/${itemId}`);
+        const item = data?.data;
+        if (item) {
+          setForm({
+            title: item.title || "",
+            description: item.description || "",
+            category: item.category || "",
+            condition: item.condition || "used"
+          });
+        }
       } catch (error) {
         setMessage(error.message);
       }
     };
-    loadCategories();
-  }, [router]);
+    if (itemId) loadItem();
+  }, [itemId]);
 
   const handleChange = (event) => {
     setForm((prev) => ({ ...prev, [event.target.name]: event.target.value }));
@@ -42,25 +45,12 @@ export default function NewItemPage() {
     event.preventDefault();
     setLoading(true);
     setMessage("");
-    if (!getAccessToken()) {
-      router.replace("/login");
-      return;
-    }
     try {
-      const formData = new FormData();
-      Object.entries(form).forEach(([key, value]) => {
-        formData.append(key, value);
+      await apiFetch(`/items/${itemId}`, {
+        method: "PUT",
+        body: JSON.stringify(form)
       });
-      images.forEach((file) => {
-        formData.append("images", file);
-      });
-      await apiFetch("/items", {
-        method: "POST",
-        body: formData
-      });
-      setForm({ title: "", description: "", category: "", condition: "used" });
-      setImages([]);
-      setShowSuccess(true);
+      router.push("/items/mine");
     } catch (error) {
       setMessage(error.message);
     } finally {
@@ -70,7 +60,7 @@ export default function NewItemPage() {
 
   return (
     <div className="mx-auto max-w-2xl space-y-6">
-      <h1 className="text-2xl font-semibold">Create Item Listing</h1>
+      <h1 className="text-2xl font-semibold">Edit Item</h1>
       <form className="card space-y-4" onSubmit={handleSubmit}>
         <div className="space-y-2">
           <label className="label" htmlFor="title">
@@ -103,23 +93,14 @@ export default function NewItemPage() {
             <label className="label" htmlFor="category">
               Category
             </label>
-            <select
+            <input
               className="input"
               name="category"
               id="category"
               value={form.category}
               onChange={handleChange}
               required
-            >
-              <option value="" disabled>
-                Select a category
-              </option>
-              {categories.map((category) => (
-                <option key={category._id} value={category.name}>
-                  {category.name}
-                </option>
-              ))}
-            </select>
+            />
           </div>
           <div className="space-y-2">
             <label className="label" htmlFor="condition">
@@ -139,43 +120,11 @@ export default function NewItemPage() {
             </select>
           </div>
         </div>
-        <div className="space-y-2">
-          <label className="label" htmlFor="images">
-            Item images (up to 6)
-          </label>
-          <input
-            className="input"
-            type="file"
-            id="images"
-            name="images"
-            accept="image/*"
-            multiple
-            onChange={(event) => setImages(Array.from(event.target.files || []))}
-          />
-        </div>
         <button className="btn-primary" disabled={loading}>
-          {loading ? "Submitting..." : "Create Listing"}
+          {loading ? "Saving..." : "Save Changes"}
         </button>
         {message ? <p className="text-sm text-slate-600">{message}</p> : null}
       </form>
-      {showSuccess ? (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/50">
-          <div className="card max-w-md space-y-3">
-            <h2 className="text-lg font-semibold">Item created successfully</h2>
-            <p className="text-sm text-slate-600">
-              Your item is pending for approval.
-            </p>
-            <div className="flex gap-2">
-              <button className="btn-primary" onClick={() => router.push("/items/mine")}>
-                Go to My Items
-              </button>
-              <button className="btn-outline" onClick={() => setShowSuccess(false)}>
-                Create another
-              </button>
-            </div>
-          </div>
-        </div>
-      ) : null}
     </div>
   );
 }
